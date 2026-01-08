@@ -1,5 +1,16 @@
 # Formula 1 SQL Data Analysis Portfolio
 
+## Objectives
+
+The main objective of this project is to analyze Formula 1 race-level performance using a consolidated race-by-race dataset in order to evaluate:
+
+- driver performance 
+- constructor effectiveness 
+- race dynamics 
+- performance consistency over time
+
+---
+
 ## Dataset
 
 The dataset used in this project comes from a publicly available Formula 1 database provided as a PostgreSQL SQL dump.
