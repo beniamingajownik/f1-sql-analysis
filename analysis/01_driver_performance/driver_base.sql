@@ -75,8 +75,14 @@ SELECT
 	ct.name AS driver_continent,
 	rs.total_starters,
 
--- Flagged drivers who started the race from pit-lane (including drivers who did not participate in qualifying but started the race)	
+-- Flagging drivers who started the race from pit-lane (including drivers who did not participate in qualifying but started the race)	
 	COALESCE(g.is_pitlane_start_flag,0) AS is_pitlane_start_flag,
+
+-- Flagging drivers who did not start a race
+	CASE
+		WHEN rd.position_text = 'DNS' THEN 1
+		ELSE 0
+	END dns_flag,
 
 -- Flagging drivers who did not finish a race
     CASE 
