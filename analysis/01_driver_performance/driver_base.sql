@@ -13,6 +13,7 @@ KEY BUSINESS & DATA LOGIC:
     - Reliability Tracking: dnf_flag (binary 1/0) consolidates non-classified finishes (DNF, NC, DSQ).
     - Entrant Accuracy: total_starters excludes 'DNS' (Did Not Start) to ensure the accuracy 
       of the calculated starting field size.
+	- Includes segmentation by regulation eras for future analysis
 
 DATA HIERARCHY & GRAIN:
     - Granularity: One row per Driver per Grand Prix/Sprint Race.
@@ -75,8 +76,21 @@ SELECT
 	ct.name AS driver_continent,
 	rs.total_starters,
 
+-- Dividing the data into different regulation eras
+	CASE 
+		WHEN year <= 1960 THEN 'Early F1'
+		WHEN year BETWEEN 1961 AND 1965 THEN '1.5 Litre Era'
+		WHEN year BETWEEN 1966 AND 1976 THEN 'Early Aero Era'
+		WHEN year BETWEEN 1977 AND 1982 THEN 'Ground-Effect Era'
+		WHEN year BETWEEN 1983 AND 1988 THEN 'Turbo Era'
+		WHEN year BETWEEN 1989 AND 2005 THEN 'V10 Era'
+		WHEN year BETWEEN 2006 AND 2013 THEN 'V8 Era'
+		WHEN year BETWEEN 2014 AND 2021 THEN 'Turbo-Hybrid Era'
+		WHEN year BETWEEN 2022 AND 2025 THEN 'Modern Ground-Effect Era'
+	END regulation_era,
+
 -- Flagging drivers who started the race from pit-lane (including drivers who did not participate in qualifying but started the race)	
-	COALESCE(g.is_pitlane_start_flag,0) AS is_pitlane_start_flag,
+	COALESCE(g.is_pitlane_start_flag, 0) AS is_pitlane_start_flag,
 
 -- Flagging drivers who did not start a race
 	CASE
