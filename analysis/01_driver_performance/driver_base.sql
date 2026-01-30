@@ -1,11 +1,11 @@
 /*
 VIEW: driver_base
 PURPOSE:
-    - Primary analytical "Golden Layer" providing a unified grain of Driver x Race.
-    - Standardizes race results by abstracting complex joins and cleaning source data anomalies.
-    - Serves as the single source of truth for all driver-related KPIs (conversion, reliability, pace).
+    - Primary analytical view at driver x session grain (including Sprint and Main Race).
+    - Serves as the foundation for KPI calculations regarding performance, consistency, and session-specific results.
 
 KEY BUSINESS & DATA LOGIC:
+	- Includes both Grand Prix and Sprint results (rd.type IN 'RACE_RESULT', 'SPRINT_RACE_RESULT').
     - Dynamic Grid Calculation: If a grid position is missing (Pit-Lane start or Qualifying DNS), 
       the grid_position is dynamically assigned to the total number of race entrants (rs.total_starters).
     - Pit-Lane Logic: Explicitly flags 'PL' starts and identifies drivers who bypassed the starting grid 
@@ -15,8 +15,8 @@ KEY BUSINESS & DATA LOGIC:
       of the calculated starting field size.
 
 DATA HIERARCHY & GRAIN:
-    - Granularity: One row per Driver per Grand Prix.
-    - Filter: Restricted to official race events only (race_data.type = 'RACE_RESULT').
+    - Granularity: One row per Driver per Grand Prix/Sprint Race.
+    - Filter: Restricted to official race events only rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT').
 
 SOURCE TABLES:
     - race_data (Fact table)
@@ -25,41 +25,51 @@ SOURCE TABLES:
 */
 
 CREATE OR REPLACE VIEW driver_base AS
--- Count of drivers that started every race
+
+-- Count of drivers that started every session
 WITH race_starters AS (
     SELECT 
 		race_id, 
+		type,
 		COUNT(*) AS total_starters
     FROM race_data 
-    WHERE type = 'RACE_RESULT' AND position_text != 'DNS' 
-    GROUP BY race_id
+    WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND position_text != 'DNS' 
+    GROUP BY race_id, type
 ),
 
--- Starting grid position of every driver at every Grand Prix that they raced in
+-- Starting grid position of every driver for both Main Races and Sprints
 grid_position AS (
-    SELECT 	
+    SELECT 
 		race_id, 
 		driver_id, 
 		position_number AS grid_pos,
+		type,
 		
 -- Flagging drivers who started the race from pit-lane
 		CASE
 			WHEN position_text = 'PL' THEN 1
 			ELSE 0
-		END is_pitlane_start_flag	
+		END is_pitlane_start_flag
+		
     FROM race_data 
-    WHERE type = 'STARTING_GRID_POSITION'
+    WHERE type IN ('STARTING_GRID_POSITION', 'SPRINT_STARTING_GRID_POSITION')
 )
+
 SELECT 
     r.year,
     rd.race_id,
+	r.date,
+	r.grand_prix_id,
+	ci.name AS circuit_name,
+	rd.type,
     d.name AS driver_name,
+	rd.driver_id,
 	
 -- Starting grid position (if a driver started from pit-lane then his starting position is last from all race entrants)
     COALESCE(g.grid_pos, rs.total_starters) AS grid_position,
 	
     rd.position_number AS finish_position,
-    rd.race_points AS points,
+    COALESCE(rd.race_points,0) AS points,
     cr.name AS team,
     cy.name AS driver_nationality,
 	ct.name AS driver_continent,
@@ -72,7 +82,13 @@ SELECT
     CASE 
 		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN 1 
 		ELSE 0 
-	END dnf_flag
+	END dnf_flag,
+
+-- Additional information about a cause of retirement (if a driver did not retire then 'NONE')
+	CASE
+		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN rd.position_text
+		ELSE 'NONE'
+	END retirement_cause
 		
 FROM race_data rd
 JOIN race r 
@@ -85,8 +101,19 @@ JOIN country cy
 	ON d.nationality_country_id = cy.id
 JOIN continent ct
 	ON cy.continent_id = ct.id
+JOIN circuit ci
+	ON r.circuit_id = ci.id
+
+-- Joining session starters by matching race_id and specific session type (Race vs Sprint)
 JOIN race_starters rs 
-	ON rd.race_id = rs.race_id
+	ON rd.race_id = rs.race_id AND rd.type = rs.type
+
+-- Left joining grid positions using session-mapping logic (matching results to their respective starting grids)
 LEFT JOIN grid_position g 
-	ON rd.race_id = g.race_id AND rd.driver_id = g.driver_id
-WHERE rd.type = 'RACE_RESULT';
+	ON rd.race_id = g.race_id 
+	AND rd.driver_id = g.driver_id 
+	AND (
+        (rd.type = 'RACE_RESULT' AND g.type = 'STARTING_GRID_POSITION') OR
+        (rd.type = 'SPRINT_RACE_RESULT' AND g.type = 'SPRINT_STARTING_GRID_POSITION')
+    )
+WHERE rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT');
