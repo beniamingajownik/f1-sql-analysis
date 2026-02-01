@@ -32,7 +32,7 @@ WITH race_starters AS (
     SELECT 
 		race_id, 
 		type,
-		COUNT(*) AS total_starters
+		COUNT(DISTINCT driver_id) AS total_starters
     FROM race_data 
     WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND position_text != 'DNS' 
     GROUP BY race_id, type
@@ -62,7 +62,13 @@ SELECT
 	r.date,
 	r.grand_prix_id,
 	ci.name AS circuit_name,
-	rd.type,
+
+-- Normalization of session type 	
+	CASE
+		WHEN rd.type = 'RACE_RESULT' THEN 'RACE'
+		WHEN rd.type = 'SPRINT_RACE_RESULT' THEN 'SPRINT'
+	END session_type,
+	
     d.name AS driver_name,
 	rd.driver_id,
 	
@@ -72,6 +78,8 @@ SELECT
     rd.position_number AS finish_position,
     COALESCE(rd.race_points,0) AS points,
     cr.name AS team,
+	d.date_of_birth,
+	d.date_of_death,
     cy.name AS driver_nationality,
 	ct.name AS driver_continent,
 	rs.total_starters,
