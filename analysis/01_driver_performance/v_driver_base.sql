@@ -25,7 +25,7 @@ SOURCE TABLES:
     - country, continent (Geographical metadata)
 */
 
-CREATE OR REPLACE VIEW driver_base AS
+CREATE OR REPLACE VIEW v_driver_base AS
 
 -- Count of drivers that started every session
 WITH race_starters AS (
