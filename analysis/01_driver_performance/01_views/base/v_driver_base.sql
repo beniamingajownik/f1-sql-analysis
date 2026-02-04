@@ -11,13 +11,14 @@ KEY BUSINESS & DATA LOGIC:
     - Pit-Lane Logic: Explicitly flags 'PL' starts and identifies drivers who bypassed the starting grid 
       using is_pitlane_start_flag (binary 1/0).
     - Reliability Tracking: dnf_flag (binary 1/0) consolidates non-classified finishes (DNF, NC, DSQ).
-    - Entrant Accuracy: total_starters excludes 'DNS' (Did Not Start) to ensure the accuracy 
+    - Entrant Accuracy: total_starters excludes ('DNS', 'DNQ', 'DNPQ', 'EX', 'DNP') to ensure the accuracy 
       of the calculated starting field size.
 	- Includes segmentation by regulation eras for future analysis
 
 DATA HIERARCHY & GRAIN:
     - Granularity: One row per Driver per Grand Prix/Sprint Race.
-    - Filter: Restricted to official race events only rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT').
+    - Filter: Restricted to official race events only rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') and only to
+	  drivers who were included in the official results.
 
 SOURCE TABLES:
     - race_data (Fact table)
@@ -34,19 +35,43 @@ WITH race_starters AS (
 		type,
 		COUNT(DISTINCT driver_id) AS total_starters
     FROM race_data 
-    WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND position_text != 'DNS' 
+    WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND position_text NOT IN ('DNS', 'DNQ', 'DNPQ', 'EX', 'DNP')
     GROUP BY race_id, type
 ),
+
+unique_races AS (
+	SELECT DISTINCT
+		r.year,
+		r.date,
+		rd.race_id,
+		rd.type
+	FROM race_data rd
+	JOIN race r
+		ON rd.race_id = r.id
+    WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') 
+),
+
+race_indexing AS (
+	SELECT 
+		*,
+		
+		-- Defining chronological race number in every season
+		RANK() OVER(PARTITION BY year, type ORDER BY date) AS round,
+		
+		-- Total Main Races/Sprint Races in a season
+		COUNT(race_id) OVER(PARTITION BY year, type) AS total_races_in_season
+	FROM unique_races
+), 
 
 -- Starting grid position of every driver for both Main Races and Sprints
 grid_position AS (
     SELECT 
 		race_id, 
 		driver_id, 
-		position_number AS grid_pos,
+		position_number,
 		type,
 		
--- Flagging drivers who started the race from pit-lane
+	-- Flagging drivers who started the race from pit-lane
 		CASE
 			WHEN position_text = 'PL' THEN 1
 			ELSE 0
@@ -55,15 +80,15 @@ grid_position AS (
     FROM race_data 
     WHERE type IN ('STARTING_GRID_POSITION', 'SPRINT_STARTING_GRID_POSITION')
 )
-
-SELECT 
-    r.year,
+SELECT
+	r.year,
     rd.race_id,
 	r.date,
+	ri.round,
 	r.grand_prix_id,
 	ci.name AS circuit_name,
-
--- Normalization of session type 	
+	
+	-- Normalization of session type 	
 	CASE
 		WHEN rd.type = 'RACE_RESULT' THEN 'RACE'
 		WHEN rd.type = 'SPRINT_RACE_RESULT' THEN 'SPRINT'
@@ -72,11 +97,16 @@ SELECT
     d.name AS driver_name,
 	rd.driver_id,
 	
--- Starting grid position (if a driver started from pit-lane then his starting position is last from all race entrants)
-    COALESCE(g.grid_pos, rs.total_starters) AS grid_position,
+	-- Starting grid position (if a driver started from pit-lane then his starting position is last from all race entrants)
+    CASE 
+		WHEN g.position_number IS NULL AND rd.position_text IN ('DNQ', 'DNPQ') THEN g.position_number
+		ELSE COALESCE(g.position_number, rs.total_starters)
+	END grid_position,
 	
-    rd.position_number AS finish_position,
-    COALESCE(rd.race_points,0) AS points,
+--PAMIĘTAĆ O TYM ŻE TO NIE JEST FINISH POSITION	 !!!!!!!!!!!!!!!!
+	rd.position_number,
+	COALESCE(rd.race_points,0) AS points,	
+	ri.total_races_in_season, 
     cr.name AS team,
 	d.date_of_birth,
 	d.date_of_death,
@@ -84,40 +114,40 @@ SELECT
 	ct.name AS driver_continent,
 	rs.total_starters,
 
--- Dividing the data into different regulation eras
+	-- Dividing the data into different regulation eras
 	CASE 
-		WHEN year <= 1960 THEN 'Early F1'
-		WHEN year BETWEEN 1961 AND 1965 THEN '1.5 Litre Era'
-		WHEN year BETWEEN 1966 AND 1976 THEN 'Early Aero Era'
-		WHEN year BETWEEN 1977 AND 1982 THEN 'Ground-Effect Era'
-		WHEN year BETWEEN 1983 AND 1988 THEN 'Turbo Era'
-		WHEN year BETWEEN 1989 AND 2005 THEN 'V10 Era'
-		WHEN year BETWEEN 2006 AND 2013 THEN 'V8 Era'
-		WHEN year BETWEEN 2014 AND 2021 THEN 'Turbo-Hybrid Era'
-		WHEN year BETWEEN 2022 AND 2025 THEN 'Modern Ground-Effect Era'
+		WHEN r.year <= 1960 THEN 'Early F1'
+		WHEN r.year BETWEEN 1961 AND 1965 THEN '1.5 Litre Era'
+		WHEN r.year BETWEEN 1966 AND 1976 THEN 'Early Aero Era'
+		WHEN r.year BETWEEN 1977 AND 1982 THEN 'Ground-Effect Era'
+		WHEN r.year BETWEEN 1983 AND 1988 THEN 'Turbo Era'
+		WHEN r.year BETWEEN 1989 AND 2005 THEN 'V10 Era'
+		WHEN r.year BETWEEN 2006 AND 2013 THEN 'V8 Era'
+		WHEN r.year BETWEEN 2014 AND 2021 THEN 'Turbo-Hybrid Era'
+		WHEN r.year BETWEEN 2022 AND 2025 THEN 'Modern Ground-Effect Era'
 	END regulation_era,
 
--- Flagging drivers who started the race from pit-lane (including drivers who did not participate in qualifying but started the race)	
+	-- Flagging drivers who started the race from pit-lane (including drivers who did not participate in qualifying but started the race)	
 	COALESCE(g.is_pitlane_start_flag, 0) AS is_pitlane_start_flag,
 
--- Flagging drivers who did not start a race
-	CASE
-		WHEN rd.position_text = 'DNS' THEN 1
-		ELSE 0
-	END dns_flag,
-
--- Flagging drivers who did not finish a race
+	-- Flagging drivers who did not finish a race
     CASE 
 		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN 1 
 		ELSE 0 
 	END dnf_flag,
 
--- Additional information about a cause of retirement (if a driver did not retire then 'NONE')
+	-- Flagging drivers who did not finish a race
+    CASE 
+		WHEN rd.position_text = 'DSQ' THEN 1 
+		ELSE 0 
+	END dsq_flag,
+
+	-- Additional information about a cause of retirement (if a driver did not retire then 'NONE')
 	CASE
 		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN rd.position_text
 		ELSE 'NONE'
 	END retirement_cause
-		
+
 FROM race_data rd
 JOIN race r 
 	ON rd.race_id = r.id
@@ -136,6 +166,9 @@ JOIN circuit ci
 JOIN race_starters rs 
 	ON rd.race_id = rs.race_id AND rd.type = rs.type
 
+JOIN race_indexing ri
+	ON rd.race_id = ri.race_id AND rd.type = ri.type
+
 -- Left joining grid positions using session-mapping logic (matching results to their respective starting grids)
 LEFT JOIN grid_position g 
 	ON rd.race_id = g.race_id 
@@ -144,4 +177,5 @@ LEFT JOIN grid_position g
         (rd.type = 'RACE_RESULT' AND g.type = 'STARTING_GRID_POSITION') OR
         (rd.type = 'SPRINT_RACE_RESULT' AND g.type = 'SPRINT_STARTING_GRID_POSITION')
     )
-WHERE rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT');
+-- Filtering data by Main Race and Sprint Race events and not including drivers who did not participate or were excluded from final results
+WHERE rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND rd.position_text NOT IN ('DNS', 'DNQ', 'DNPQ', 'DNP', 'EX');
