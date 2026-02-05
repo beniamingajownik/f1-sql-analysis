@@ -17,7 +17,12 @@ KEY BUSINESS & DATA LOGIC:
 
 DATA HIERARCHY & GRAIN:
     - Granularity: One row per Driver per Grand Prix/Sprint Race.
-    - Filter: Restricted to official race events only rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') and only to
+		*Note on Grain: In modern F1, this simplifies to Driver x Session. However, to preserve historical accuracy (1950s-70s), 
+	  	this view retains multiple records per driver per race in cases of "Shared Drives" 
+	  	(e.g., when a driver switched cars during the event). 
+	- Result Unification: Aggregation to a single Driver x Race grain for 
+      championship standings is handled in the Logic Layer.
+	- Filter: Restricted to official race events only rd.type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') and only to
 	  drivers who were included in the official results.
 
 SOURCE TABLES:
