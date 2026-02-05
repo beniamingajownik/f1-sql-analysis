@@ -1,7 +1,7 @@
 # Project Plan: F1 SQL Analysis
 
 ## Primary goal
--   Analize the results of Formula 1 drivers and teams performance using a consolidated race-by-race dataset.
+-   Analyze the results of Formula 1 drivers and teams performance using a consolidated race-by-race dataset.
 
     ### Key areas of analysis
     - driver performance
@@ -14,22 +14,31 @@
 
 ---
 
+## Project Layers
+-   **[DONE] Base Layer:** `v_driver_base` - Cleaned facts at driver x session grain.
+-   **[TODO] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility (dropped results).
+-   **[TODO] Analytics Layer:** Aggregated standings, driver performance KPIs, and era-based comparisons.
+
+---
+
 ## Completed Milestones
--  **Database Setup**: Successfully imported the F1 historical dataset.
--  **Project Architecture**: Implemented a layered folder structure (Base/Reporting/Exploratory) to ensure scalability and Clean Code standards.
--  **Base Layer (Silver)**: Developed the `v_driver_base` view, which includes:
-    - Categorization by technical **Regulation Eras**.
-    - **DNS (Did Not Start)** and **DNF** flagging for reliability analysis.
-    - **Pit Lane start** logic and grid position normalization.
+-   **[SETUP]** **Database Setup**: Successfully imported the F1 historical dataset.
+-   **[SETUP]** **Project Architecture**: Implemented a layered folder structure (Base/Logic/Analytics) to ensure scalability and Clean Code standards.
+-   **[BASE]** **Base Layer (Silver)**: Developed the `v_driver_base` view, which includes:
+        - Categorization by technical **Regulation Eras**.
+        - **DNS (Did Not Start)** and **DNF** flagging for reliability analysis.
+        - **Pit Lane start** logic and grid position normalization.
 
-## In Progress
--   **Reporting Layer (Gold)**: Developing the `v_analysis_driver_season_performance` view:
-    - Seasonal statistics (Average points, Race vs. Sprint performance split).
-    - Driver championship rankings using `DENSE_RANK`.
--   **Career Milestones Analysis**: Building views to track driver life-cycles (age at first win, days from debut to first points, etc.).
--   **Data Quality Audit**: Verifying historical data consistency across different eras.
-
-## Upcoming Steps
-1. Finalize Driver Career Milestones analysis.
-2. Initiate Constructor Performance analysis (`02_constructor_performance`).
-3. Develop a dedicated SQL suite for Power BI dashboard integration.
+## Milestones In Progress
+-   **[LOGIC]** **Championship Logic & Standing**: Developing the `v_driver_championship_logic` view:
+        - Apply "Dropped Results" logic for 1950-1990 seasons.
+        - Handle "Shared Drives" (taking MIN position_number per driver/race).
+-   **[ANALYTICS]** **Driver consistency metrics**: Seasonal statistics (Average points, Main Race vs. Sprint Race performance split, grid position vs finish position etc.). *Dependent on Logic Layer completion*
+-   **[ANALYTICS]** **Career Milestones Analysis**: Building views to track driver life-cycles (age at first win, days from debut to first points, etc.). *Dependent on Logic Layer completion*
+-   **[VERYFICATION]** **Data Quality Audit**: Cross-referencing calculated standings with official FIA year-end results to ensure logic accuracy.   
+-   **[VISUALIZATION]** **PowerBI Visualization**
+    
+## Tech Stack
+-    PostgreSQL 
+-    Power BI  
+-    Git (PowerShell)
