@@ -103,8 +103,7 @@ SELECT
 		ELSE COALESCE(g.position_number, rs.total_starters)
 	END grid_position,
 	
---PAMIĘTAĆ O TYM ŻE TO NIE JEST FINISH POSITION	 !!!!!!!!!!!!!!!!
-	rd.position_number,
+	rd.position_number AS finish_position,
 	COALESCE(rd.race_points,0) AS points,	
 	ri.total_races_in_season, 
     cr.name AS team,
