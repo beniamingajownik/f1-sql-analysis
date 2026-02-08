@@ -149,9 +149,11 @@ SELECT
 
 	-- Additional information about a cause of retirement (if did not retire then 'NONE')
 	CASE
-		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN rd.position_text
-		ELSE 'NONE'
-	END retirement_cause
+		WHEN rd.race_reason_retired IS NULL THEN 'NONE'
+		ELSE rd.race_reason_retired
+	END retirement_cause,
+
+	rd.race_fastest_lap AS is_fastest_lap
 
 FROM race_data rd
 JOIN race r 
