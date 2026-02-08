@@ -16,7 +16,8 @@
 
 ## Project Layers
 -   **[DONE] Base Layer:** `v_driver_base` - Cleaned facts at driver x session grain.
--   **[DONE] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility (dropped results).
+-   **[DONE] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility for drivers (dropped results).
+-   **[DONE] Logic Layer:** `v_constructor_championship_logic` - Historical rules and championship eligibility for constructors (dropped results).
 -   **[TODO] Analytics Layer:** Aggregated standings, driver performance KPIs, and era-based comparisons.
 
 ---
