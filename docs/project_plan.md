@@ -16,27 +16,28 @@
 
 ## Project Layers
 -   **[DONE] Base Layer:** `v_driver_base` - Cleaned facts at driver x session grain.
--   **[TODO] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility (dropped results).
+-   **[DONE] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility (dropped results).
 -   **[TODO] Analytics Layer:** Aggregated standings, driver performance KPIs, and era-based comparisons.
 
 ---
 
 ## Completed Milestones
--   **[SETUP]** **Database Setup**: Successfully imported the F1 historical dataset.
--   **[SETUP]** **Project Architecture**: Implemented a layered folder structure (Base/Logic/Analytics) to ensure scalability and Clean Code standards.
--   **[BASE]** **Base Layer (Silver)**: Developed the `v_driver_base` view, which includes:
+-   **[SETUP] Database Setup**: Successfully imported the F1 historical dataset.
+-   **[SETUP] Project Architecture**: Implemented a layered folder structure (Base/Logic/Analytics) to ensure scalability and Clean Code standards.
+-   **[BASE] Base Layer (Silver)**: Developed the `v_driver_base` view, which includes:
         - Categorization by technical **Regulation Eras**.
         - **DNS (Did Not Start)** and **DNF** flagging for reliability analysis.
         - **Pit Lane start** logic and grid position normalization.
+-   **[LOGIC] Championship Logic & Standing**: Developing the `v_driver_championship_logic` view:
+        - Apply "Dropped Results" logic for 1950-1990 seasons.
+        - Handle "Shared Drives" by selecting the best finish per driver/race.
+        - Standardizes grain for final championship aggregations.
 
 ## Milestones In Progress
--   **[LOGIC]** **Championship Logic & Standing**: Developing the `v_driver_championship_logic` view:
-        - Apply "Dropped Results" logic for 1950-1990 seasons.
-        - Handle "Shared Drives" (taking MIN position_number per driver/race).
--   **[ANALYTICS]** **Driver consistency metrics**: Seasonal statistics (Average points, Main Race vs. Sprint Race performance split, grid position vs finish position etc.). *Dependent on Logic Layer completion*
--   **[ANALYTICS]** **Career Milestones Analysis**: Building views to track driver life-cycles (age at first win, days from debut to first points, etc.). *Dependent on Logic Layer completion*
--   **[VERYFICATION]** **Data Quality Audit**: Cross-referencing calculated standings with official FIA year-end results to ensure logic accuracy.   
--   **[VISUALIZATION]** **PowerBI Visualization**
+-   **[ANALYTICS] Driver consistency metrics**: Seasonal statistics (Average points, Main Race vs. Sprint Race performance split, grid position vs finish position etc.). *Dependent on Logic Layer completion*
+-   **[ANALYTICS] Career Milestones Analysis**: Building views to track driver life-cycles (age at first win, days from debut to first points, etc.). *Dependent on Logic Layer completion*
+-   **[VERYFICATION] Data Quality Audit**: Cross-referencing calculated standings with official FIA year-end results to ensure logic accuracy.   
+-   **[VISUALIZATION] PowerBI Visualization**
     
 ## Tech Stack
 -    PostgreSQL 
