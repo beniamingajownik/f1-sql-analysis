@@ -136,7 +136,7 @@ SELECT
 
 	-- Flagging drivers who did not finish a race
     CASE 
-		WHEN rd.position_text IN ('DNF', 'NC', 'DSQ') THEN 1 
+		WHEN rd.position_text IN ('DNF', 'NC') THEN 1 
 		ELSE 0 
 	END dnf_flag,
 
