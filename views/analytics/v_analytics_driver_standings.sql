@@ -32,13 +32,7 @@ WITH aggregated_season AS (
 	GROUP BY year, driver_name, driver_id, driver_nationality, driver_continent, regulation_era
 )
 SELECT
-	year,
-	driver_name,
-	team,
-	driver_nationality,
-	driver_continent,
-	regulation_era,
-	total_points,
+	*,
 	-- Ranking drivers within each season based on their points tally
 	RANK() OVER(PARTITION BY year ORDER BY total_points DESC) season_position
 FROM aggregated_season
