@@ -93,6 +93,9 @@ SELECT
 	CASE 
 		-- Counts Highest-Finishing Car Only by picking only the highest result per race
 		WHEN driver_in_team_rank > 1 AND year < 1979 THEN 0
+
+		-- Excluding Indy500 races from World Constructor Championship
+		WHEN grand_prix_id = 'indianapolis' THEN 0
 		
 		-- Best n results of the whole season era
 		WHEN year IN (1959, 1961, 1962, 1966) 		AND in_season_best_result_rank <= 5  THEN 1
