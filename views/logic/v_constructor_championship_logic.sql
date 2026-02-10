@@ -96,6 +96,9 @@ SELECT
 
 		-- Excluding Indy500 races from World Constructor Championship
 		WHEN grand_prix_id = 'indianapolis' THEN 0
+
+		-- Excluding Mclaren from 2007 Championship (Disqualified for spying)
+		WHEN constructor_id = 'mclaren' AND year = 2007 THEN 0
 		
 		-- Best n results of the whole season era
 		WHEN year IN (1959, 1961, 1962, 1966) 		AND in_season_best_result_rank <= 5  THEN 1
