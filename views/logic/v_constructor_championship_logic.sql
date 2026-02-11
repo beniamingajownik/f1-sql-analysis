@@ -23,10 +23,17 @@ WITH results AS (
 		-- Driver rank based on race performance by team (constructor championship points were only given based on the best-placed car per team)
 		ROW_NUMBER() OVER(PARTITION BY race_id, constructor_id, session_type ORDER BY finish_position) driver_in_team_rank,
 
-		-- Correcting points scored by the teams in case of a point for fastest lap awarded to the driver
+		-- Correcting inaccurate 'points' data within data-set
 		CASE 
+			-- Correcting points scored by the teams in case of a point for fastest lap awarded to the driver
 			WHEN year IN (1958, 1959) AND is_fastest_lap = 'true' THEN points - 1.0
-			WHEN year IN (1961) THEN (CASE WHEN points = 9 THEN 8 ELSE points END)::numeric
+			
+			-- Correcting points scored by the teams in 1961 (while drivers scored 9pts. for 1st place, teams scored only 8pts.)
+			WHEN year = 1961 THEN (CASE WHEN points = 9 THEN 8 ELSE points END)::numeric
+			
+			-- Correcting race result from 1995 Brazilian GP (Only team points were deducted due to inaccurate fuel samples)
+			WHEN year = 1995 AND driver_id = 'michael-schumacher' 	AND grand_prix_id = 'brazil' THEN 0
+			WHEN year = 1995 AND driver_id = 'david-coulthard' 		AND grand_prix_id = 'brazil' THEN 0		
 			ELSE points
 		END team_points
 		
