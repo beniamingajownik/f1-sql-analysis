@@ -101,6 +101,16 @@ SELECT
 	
     d.name AS driver_name,
 	rd.driver_id,
+	cy.name AS driver_nationality,
+	ct.name AS driver_continent,
+
+	CONCAT(
+        UPPER(SUBSTRING(rd.engine_manufacturer_id, 1, 1)),
+        LOWER(SUBSTRING(rd.engine_manufacturer_id, 2, LENGTH(rd.engine_manufacturer_id)))
+    ) AS engine_manufacturer,
+	
+	cr.name AS constructor_name,
+	rd.constructor_id,
 	
 	-- Starting grid position (if a driver started from pit-lane then his starting position is last from all race entrants)
     CASE 
@@ -114,8 +124,6 @@ SELECT
     cr.name AS team,
 	d.date_of_birth,
 	d.date_of_death,
-    cy.name AS driver_nationality,
-	ct.name AS driver_continent,
 	rs.total_starters,
 
 	-- Dividing the data into different regulation eras
