@@ -145,6 +145,7 @@ SELECT
 	official_race_points,
 	total_sprint_points,
 	official_season_points,
+	unofficial_season_points,
 		
 	-- Average points (Main Race/Sprint Race)
 	ROUND((official_race_points / NULLIF(season_race_entries::numeric, 0)), 2) 	AS avg_race_points,
