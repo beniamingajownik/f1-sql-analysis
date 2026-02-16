@@ -58,7 +58,11 @@ race_stats_per_season AS (
 		STRING_AGG(DISTINCT engine_manufacturer, ' / ') AS engine,
 		regulation_era,
 
-		-- Total events per season (Main Race/Sprint Race)
+		-- Total season entries per driver
+		COUNT(CASE WHEN session_type = 'RACE' 		THEN driver_id END) AS season_race_entries,
+		COUNT(CASE WHEN session_type = 'SPRINT' 	THEN driver_id END) AS season_sprint_entries,
+
+		-- Total events held per season (Main Race/Sprint Race)
 		MAX(MAX(CASE WHEN session_type = 'RACE' 	THEN round END)) OVER(PARTITION BY year) 	AS total_season_races,
 		MAX(MAX(CASE WHEN session_type = 'SPRINT' 	THEN round END)) OVER(PARTITION BY year) 	AS total_season_sprints,
 
@@ -117,6 +121,8 @@ SELECT
 	driver_continent,
 	engine,
 	regulation_era,
+	season_race_entries,
+	season_sprint_entries,
 
 	race_wins,
 	sprint_wins,
@@ -124,12 +130,12 @@ SELECT
 	sprint_podiums,
 
 	-- Percentage of wins in a season (Main Race/Sprint Race)
-	ROUND((race_wins::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS race_wins_pct,
-	ROUND((sprint_wins::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS sprint_wins_pct,
+	ROUND((race_wins::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS season_race_wins_pct,
+	ROUND((sprint_wins::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS season_sprint_wins_pct,
 
 	-- Percentage of podiums in a season (Main Race/Sprint Race)
-	ROUND((race_podiums::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS race_podiums_pct,
-	ROUND((sprint_podiums::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS sprint_podiums_pct,
+	ROUND((race_podiums::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS season_race_podiums_pct,
+	ROUND((sprint_podiums::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS season_sprint_podiums_pct,
 	
 	avg_race_grid,
 	avg_race_finish,
@@ -141,8 +147,8 @@ SELECT
 	official_season_points,
 		
 	-- Average points (Main Race/Sprint Race)
-	ROUND((official_race_points / NULLIF(total_season_races::numeric, 0)), 2) 	AS avg_race_points,
-	ROUND((total_sprint_points / NULLIF(total_season_sprints::numeric, 0)), 2) 	AS avg_sprint_points,
+	ROUND((official_race_points / NULLIF(season_race_entries::numeric, 0)), 2) 	AS avg_race_points,
+	ROUND((total_sprint_points / NULLIF(season_sprint_entries::numeric, 0)), 2) AS avg_sprint_points,
 
 	race_dnf,
 	race_dnf_pct,
@@ -154,6 +160,9 @@ SELECT
 	sprint_dsq_pct,
 	
 	-- Percentage of fastest laps by driver in a season (Main Race/Sprint Race)
-	ROUND((race_fastest_lap::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) AS race_fastest_lap_pct
+	ROUND((race_fastest_lap::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) AS race_fastest_lap_pct,
+
+	total_season_races,
+	total_season_sprints
 	
 FROM race_stats_per_season;
