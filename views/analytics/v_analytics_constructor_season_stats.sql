@@ -137,7 +137,7 @@ SELECT
 	regulation_era,
 	
 	constructor_race_entrants,
-	constructor_sprint_entrants
+	constructor_sprint_entrants,
 	
 	race_wins,
 	sprint_wins,
@@ -175,6 +175,9 @@ SELECT
 	sprint_dsq_pct,
 	
 	-- Percentage of fastest laps by driver in a season (Main Race/Sprint Race)
-	ROUND((race_fastest_lap::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) AS race_fastest_lap_pct
+	ROUND((race_fastest_lap::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) AS race_fastest_lap_pct,
+
+	total_season_races,
+	total_season_sprints
 	
 FROM points_correction;
