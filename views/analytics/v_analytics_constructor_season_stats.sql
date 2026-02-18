@@ -135,15 +135,18 @@ SELECT
 	constructor_continent,
 	engine,
 	regulation_era,
-
+	
+	constructor_race_entrants,
+	constructor_sprint_entrants
+	
 	race_wins,
 	sprint_wins,
 	race_podiums,
 	sprint_podiums,
 
 	-- Percentage of wins in a season (Main Race/Sprint Race)
-	ROUND((race_wins::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS race_wins_pct,
-	ROUND((sprint_wins::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS sprint_wins_pct,
+	ROUND((race_wins::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS season_race_wins_pct,
+	ROUND((sprint_wins::numeric / NULLIF(total_season_sprints::numeric, 0) * 100), 2) 	AS season_sprint_wins_pct,
 
 	-- Percentage of podiums in a season based on total entry potential - The "Efficiency" Stat (Main Race/Sprint Race)
 	ROUND((race_podiums::numeric / NULLIF(constructor_race_entrants::numeric, 0) * 100), 2) 		AS race_podiums_pct,
