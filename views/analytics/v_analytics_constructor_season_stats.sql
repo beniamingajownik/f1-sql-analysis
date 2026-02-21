@@ -41,11 +41,12 @@ WITH driver_rank AS (
 		cl.team_points,
 		cl.counts_to_championship,
 
-		CASE WHEN 
-            COUNT(CASE WHEN cb.finish_position = 1 THEN 1 END) OVER(PARTITION BY cb.race_id, cb.constructor_id, cb.session_type) > 0
-            AND 
-            COUNT(CASE WHEN cb.finish_position = 2 THEN 1 END) OVER(PARTITION BY cb.race_id, cb.constructor_id, cb.session_type) > 0
-        THEN 1 ELSE 0 END AS is_one_two_finish
+		-- 'One-Two' Flag logic
+		CASE 
+			WHEN cb.finish_position = 1 
+				AND
+     			COUNT(CASE WHEN cb.finish_position = 2 THEN 1 END) OVER(PARTITION BY cb.race_id, cb.constructor_id, cb.session_type) > 0
+		THEN 1 ELSE 0 END AS is_one_two_finish
 		
 	FROM v_constructor_base cb
 	LEFT JOIN v_constructor_championship_logic cl
@@ -83,8 +84,8 @@ race_stats_per_season AS (
 		COUNT(CASE WHEN session_type = 'SPRINT' AND finish_position IN (1, 2, 3) THEN 1 END) AS sprint_podiums,
 
 		-- Total 'One-Twos' per season (Main Race/Sprint Race)
-		COUNT(CASE WHEN session_type = 'RACE' 	AND is_one_two_finish = 1 	THEN is_one_two_finish END)	AS count_race_one_two,
-		COUNT(CASE WHEN session_type = 'SPRINT' AND is_one_two_finish = 1 	THEN is_one_two_finish END)	AS count_sprint_one_two,
+		COUNT(CASE WHEN session_type = 'RACE' 	AND is_one_two_finish = 1 	THEN is_one_two_finish END)	AS race_one_two_finishes,
+		COUNT(CASE WHEN session_type = 'SPRINT' AND is_one_two_finish = 1 	THEN is_one_two_finish END)	AS sprint_one_two_finishes,
 		
 		-- Average grid position, finish position (Main Race/Sprint Race)
 		ROUND(AVG(CASE WHEN session_type = 'RACE' 	THEN grid_position END), 2) 	 AS avg_race_grid,
@@ -153,8 +154,8 @@ SELECT
 	sprint_wins,
 	race_podiums,
 	sprint_podiums,
-	ROUND(count_race_one_two / 2, 2) 	AS race_one_two_finishes,
-	ROUND(count_sprint_one_two / 2, 2) 	AS sprint_one_two_finishes,
+	race_one_two_finishes, 		
+	sprint_one_two_finishes, 	
 	
 	-- Percentage of wins in a season (Main Race/Sprint Race)
 	ROUND((race_wins::numeric / NULLIF(total_season_races::numeric, 0) * 100), 2) 		AS season_race_wins_pct,
