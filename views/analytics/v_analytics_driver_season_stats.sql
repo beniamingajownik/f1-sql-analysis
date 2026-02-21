@@ -9,6 +9,7 @@ KEY BUSINESS & DATA LOGIC:
 
 DATA HIERARCHY & GRAIN:
     - Granularity: One row per driver (Driver x Season)
+		*Note on Grain: If a driver switched teams mid-season then the driver will take up two or more rows.
 
 SOURCE TABLES:
     - v_driver_base
@@ -52,7 +53,7 @@ race_stats_per_season AS (
 		year,
 		driver_name,
 		driver_id,
-		STRING_AGG(DISTINCT constructor_name, ' / ') AS team,
+		constructor_name AS team,
 		driver_nationality,
 		driver_continent,
 		STRING_AGG(DISTINCT engine_manufacturer, ' / ') AS engine,
@@ -110,7 +111,7 @@ race_stats_per_season AS (
 		COUNT(CASE WHEN is_fastest_lap = 'true' AND session_type = 'RACE' 	THEN 1 END) AS race_fastest_lap
 		
 	FROM driver_rank
-	GROUP BY year, driver_name, driver_id, driver_nationality, driver_continent, regulation_era
+	GROUP BY year, driver_name, driver_id, constructor_name, driver_nationality, driver_continent, regulation_era
 )
 SELECT 
 	year,
