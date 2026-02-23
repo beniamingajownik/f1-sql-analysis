@@ -71,7 +71,11 @@ race_stats_per_season AS (
 		MAX(MAX(CASE WHEN session_type = 'RACE' 	THEN round END)) OVER(PARTITION BY year) 	AS total_season_races,
 		MAX(MAX(CASE WHEN session_type = 'SPRINT' 	THEN round END)) OVER(PARTITION BY year) 	AS total_season_sprints,
 
-		-- Calculating total constructor entries per season (Main Race/Sprint Race)
+		-- Total constructor entries per season *MIN. 1 driver participated in an event* (Main Race/Sprint Race)
+		COUNT(DISTINCT (CASE WHEN session_type = 'RACE' 	THEN round END) ) 	AS constructor_race_entries,
+		COUNT(DISTINCT (CASE WHEN session_type = 'SPRINT' 	THEN round END) ) 	AS constructor_sprint_entries,
+
+		-- Calculating total constructor entrants per season (Main Race/Sprint Race)
 		COUNT(CASE WHEN session_type = 'RACE' 	THEN 1 END)  	AS constructor_race_entrants,
 		COUNT(CASE WHEN session_type = 'SPRINT' THEN 1 END)  	AS constructor_sprint_entrants,
 
@@ -82,6 +86,10 @@ race_stats_per_season AS (
 		-- Total podiums per season (Main Race/Sprint Race)
 		COUNT(CASE WHEN session_type = 'RACE' 	AND finish_position IN (1, 2, 3) THEN 1 END) AS race_podiums,
 		COUNT(CASE WHEN session_type = 'SPRINT' AND finish_position IN (1, 2, 3) THEN 1 END) AS sprint_podiums,
+
+		-- Distinct total podiums per season (Main Race/Sprint Race)
+		COUNT(DISTINCT (CASE WHEN session_type = 'RACE' 	AND finish_position IN (1, 2, 3) THEN round END)) 	AS distinct_race_podiums,
+		COUNT(DISTINCT (CASE WHEN session_type = 'SPRINT' 	AND finish_position IN (1, 2, 3) THEN round END)) 	AS distinct_sprint_podiums,
 
 		-- Total 'One-Twos' per season (Main Race/Sprint Race)
 		COUNT(CASE WHEN session_type = 'RACE' 	AND is_one_two_finish = 1 	THEN is_one_two_finish END)	AS race_one_two_finishes,
@@ -149,11 +157,15 @@ SELECT
 	
 	constructor_race_entrants,
 	constructor_sprint_entrants,
+	constructor_race_entries,
+	constructor_sprint_entries,
 	
 	race_wins,
 	sprint_wins,
 	race_podiums,
+	distinct_race_podiums,
 	sprint_podiums,
+	distinct_sprint_podiums,
 	race_one_two_finishes, 		
 	sprint_one_two_finishes, 	
 	
