@@ -1,22 +1,24 @@
 /*
 VIEW: gold.v_analytics_constructor_career_summary
 PURPOSE:
-    - Provides a final, aggregated summary of constructor statistic throughout a career.
-	- Serves as the primary source for constructor wins/podiums/dnf,dsq insights.  
+    - Provides a final, aggregated summary of constructor statistics throughout a career.
+    - Serves as the primary source for constructor wins/podiums/dnf, dsq insights and championship titles.  
 	
 KEY BUSINESS & DATA LOGIC:
-	- Calculates Main Race and Sprint Race starts, wins, podiums, pole positions and DNF/DSQ insight (driver/teams fault) 
+    - Calculates Main Race and Sprint Race starts, wins, podiums, pole positions and DNF/DSQ insight.
+    - Joins seasonal standings to aggregate total World Constructor Championships (WCC).
 
 DATA HIERARCHY & GRAIN:
     - Granularity: One row per constructor 
 
 SOURCE TABLES:
     - silver.v_constructor_base
+    - gold.v_analytics_constructor_standings
 */
 
 CREATE OR REPLACE VIEW gold.v_analytics_constructor_career_summary AS
 
--- Selecting distinct constructor results (in case of multiple rows per driver per race)
+-- Selecting distinct constructor results
 WITH unified_results AS (
 	SELECT DISTINCT ON (year, race_id, session_type, constructor_id)
 		*
@@ -24,7 +26,17 @@ WITH unified_results AS (
 	ORDER BY year, race_id, session_type, constructor_id, finish_position ASC
 ),
 
--- Creating flags which will be used for aggregation later on
+-- Aggregating championship titles
+constructor_titles AS (
+	SELECT 
+		constructor_id,
+		COUNT(*) AS total_titles
+	FROM gold.v_analytics_constructor_standings
+	WHERE season_position = 1
+	GROUP BY constructor_id
+),
+
+-- Creating flags for aggregation
 place_logic AS (
 	SELECT
 		*,
@@ -58,57 +70,52 @@ place_logic AS (
 			WHEN finish_position IN (1, 2, 3) AND session_type = 'SPRINT' THEN 1
 		END is_sprint_podium,
 
-		-- DNF Flag (distinguishing who caused the DNF for e.g. was it a car reliability issue or a drivers mistake)
+		-- DNF/DSQ Fault Logic
 		CASE 
-			WHEN dnf_flag = 1 AND retirement_cause IN (	'Accident', 'Accident damage', 'Accident on formation lap', 'Broken floor', 'Broken wing', 
+			WHEN dnf_flag = 1 AND retirement_cause IN ('Accident', 'Accident damage', 'Accident on formation lap', 'Broken floor', 'Broken wing', 
 														'Collision', 'Collision damage', 'Failed to serve stop-go penalty', 'Fatal accident', 
 														'Fatal collision', 'Spin', 'Spun off', 'Unfit', 'Unwell', 'Withdrew') 
 														THEN 'Driver fault'
-														
 			WHEN dnf_flag = 1 THEN 'Car reliability'							
-			
 		END dnf_fault,
 
-		-- DSQ Flag (distinguishing who caused the DSQ for e.g. was it a car regulation breach or a drivers reckless driving / not obeying to rules etc.)
 		CASE 
-			WHEN dsq_flag = 1 AND retirement_cause IN (	'Caused collision with Trulli', 'Driving too slowly', 'Failed to serve stop-go penalty', 'Ignored black flag', 
+			WHEN dsq_flag = 1 AND retirement_cause IN ('Caused collision with Trulli', 'Driving too slowly', 'Failed to serve stop-go penalty', 'Ignored black flag', 
 														'Ignored blue flags', 'Ignored red light', 'Ignored yellow flags', 'Ignored yellow flags in practice', 
 														'Illegal start', 'Incorrect grid formation', 'Incorrect starting procedure', 'Misled stewards', 
 														'Overtaking on formation lap', 'Rejoined track illegally', 'Reversed in pits') 
 														THEN 'Driver fault'
-														
 			WHEN dsq_flag = 1 THEN 'Team fault'							
-
 		END dsq_fault
 		
 	FROM unified_results
 )
 SELECT 
-	constructor_name,
-	constructor_id,
+	pl.constructor_name,
+	pl.constructor_id,
+	COALESCE(ct.total_titles, 0) AS titles, 
 	
--- Final calculations (aggregation of flags)
-	-- Total points scored per constructor (including dropped results from 1950 - 1989 Era)
-	SUM(points) AS total_points,
+	SUM(pl.points) AS total_points,
 	
 	-- Main Race stats
-	COUNT(CASE WHEN session_type = 'RACE' THEN 1 END) AS race_starts,
-	COUNT(is_pole_position) AS pole_positions,
-	COUNT(is_race_win) AS race_wins,
-	COUNT(is_race_podium) AS race_podiums,
+	COUNT(CASE WHEN pl.session_type = 'RACE' THEN 1 END) AS race_starts,
+	COUNT(pl.is_pole_position) AS pole_positions,
+	COUNT(pl.is_race_win) AS race_wins,
+	COUNT(pl.is_race_podium) AS race_podiums,
 	
 	-- Sprint Race stats
-	COUNT(CASE WHEN session_type = 'SPRINT' THEN 1 END) AS sprint_starts,
-	COUNT(is_sprint_pole_position) AS sprint_pole_positions,
-	COUNT(is_sprint_win) AS sprint_wins,
-	COUNT(is_sprint_podium) AS sprint_podiums,
+	COUNT(CASE WHEN pl.session_type = 'SPRINT' THEN 1 END) AS sprint_starts,
+	COUNT(pl.is_sprint_pole_position) AS sprint_pole_positions,
+	COUNT(pl.is_sprint_win) AS sprint_wins,
+	COUNT(pl.is_sprint_podium) AS sprint_podiums,
 	
 	-- DNF/DSQ stats
-	COUNT(CASE WHEN dnf_fault = 'Driver fault' THEN 1 END) AS driver_caused_dnf,
-	COUNT(CASE WHEN dnf_fault = 'Car reliability' THEN 1 END) AS car_caused_dnf,
-	COUNT(CASE WHEN dsq_fault = 'Driver fault' THEN 1 END) AS driver_caused_dsq,
-	COUNT(CASE WHEN dsq_fault = 'Team fault' THEN 1 END) AS car_caused_dsq,
-	COUNT(dnf_fault) AS total_dnf,
-	COUNT(dsq_fault) AS total_dsq
-FROM place_logic
-GROUP BY constructor_name, constructor_id;
+	COUNT(CASE WHEN pl.dnf_fault = 'Driver fault' THEN 1 END) AS driver_caused_dnf,
+	COUNT(CASE WHEN pl.dnf_fault = 'Car reliability' THEN 1 END) AS car_caused_dnf,
+	COUNT(CASE WHEN pl.dsq_fault = 'Driver fault' THEN 1 END) AS driver_caused_dsq,
+	COUNT(CASE WHEN pl.dsq_fault = 'Team fault' THEN 1 END) AS car_caused_dsq,
+	COUNT(pl.dnf_fault) AS total_dnf,
+	COUNT(pl.dsq_fault) AS total_dsq
+FROM place_logic pl
+LEFT JOIN constructor_titles ct ON pl.constructor_id = ct.constructor_id
+GROUP BY pl.constructor_name, pl.constructor_id, ct.total_titles;
