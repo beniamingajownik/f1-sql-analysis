@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_constructor_career_summary
+VIEW: gold.v_analytics_constructor_career_summary
 PURPOSE:
     - Provides a final, aggregated summary of constructor statistic throughout a career.
 	- Serves as the primary source for constructor wins/podiums/dnf,dsq insights.  
@@ -11,16 +11,16 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per constructor 
 
 SOURCE TABLES:
-    - v_constructor_base
+    - silver.v_constructor_base
 */
 
-CREATE OR REPLACE VIEW v_analytics_constructor_career_summary AS
+CREATE OR REPLACE VIEW gold.v_analytics_constructor_career_summary AS
 
 -- Selecting distinct constructor results (in case of multiple rows per driver per race)
 WITH unified_results AS (
 	SELECT DISTINCT ON (year, race_id, session_type, constructor_id)
 		*
-	FROM v_constructor_base
+	FROM silver.v_constructor_base
 	ORDER BY year, race_id, session_type, constructor_id, finish_position ASC
 ),
 
@@ -107,6 +107,8 @@ SELECT
 	COUNT(CASE WHEN dnf_fault = 'Driver fault' THEN 1 END) AS driver_caused_dnf,
 	COUNT(CASE WHEN dnf_fault = 'Car reliability' THEN 1 END) AS car_caused_dnf,
 	COUNT(CASE WHEN dsq_fault = 'Driver fault' THEN 1 END) AS driver_caused_dsq,
-	COUNT(CASE WHEN dsq_fault = 'Team fault' THEN 1 END) AS car_caused_dsq	
+	COUNT(CASE WHEN dsq_fault = 'Team fault' THEN 1 END) AS car_caused_dsq,
+	COUNT(dnf_fault) AS total_dnf,
+	COUNT(dsq_fault) AS total_dsq
 FROM place_logic
 GROUP BY constructor_name, constructor_id;
