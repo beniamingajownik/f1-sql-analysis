@@ -8,4 +8,4 @@ This PostgreSQL dump is sourced directly from the **f1db project** (The Open Sou
 
 **Note:** This file serves as the **Bronze Layer** (Raw Data) in our pipeline. All original credit for the collection and maintenance of this data goes to the creators of [f1db](https://github.com/f1db/f1db). 
 
-The transformation logic, analytical views, and reporting structures developed on top of this dataset can be found in the [`views/`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views) and [`data/portfolio-work/`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/data/portfolio%20work) directories.
+The transformation logic, analytical views, and reporting structures developed on top of this dataset can be found in the [`views/`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views) and [`data/portfolio-work/`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/data/portfolio-work) directories.
