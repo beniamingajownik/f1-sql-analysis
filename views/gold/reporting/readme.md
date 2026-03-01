@@ -41,7 +41,7 @@
 
 ---
 
-## **`v_report_hall_of_fame`**
+## **`v_report_hall_of_fame_master`**
   - A unified "All-Time" career summary for both Drivers and Constructors. It consolidates lifetime achievements, including World Titles, win percentages, and long-term reliability metrics into a single, filterable reporting grain.
 
 **Key Features for BI:**

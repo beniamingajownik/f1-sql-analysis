@@ -45,7 +45,7 @@ This directory contains the core logic of the F1 Data Warehouse, organized into 
   - A comprehensive seasonal performance matrix. It consolidates WDC standings, Overtaking Efficiency, and **Season Momentum** metrics into a single Driver-Year grain, ideal for trend analysis.
 - **`v_report_constructor_master`** 
   - A team-centric reporting table featuring strategic KPIs such as the **Chassis Stability Index** and **Mid-Season Development Index** to evaluate engineering and R&D effectiveness.
-- **`v_report_hall_of_fame`** 
+- **`v_report_hall_of_fame_master`** 
   - A unified legacy summary for both Drivers and Constructors. Provides normalized efficiency metrics (Win/Podium %) and granular risk profiles (Driver vs. Car DNF rates) for cross-era benchmarking.
 
 ---
