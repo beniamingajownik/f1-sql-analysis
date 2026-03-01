@@ -1,5 +1,5 @@
 /*
-VIEW: v_constructor_championship_logic
+VIEW: silver.v_constructor_championship_logic
 PURPOSE:
     - Applies FIA championship rules to the base racing data.
 	- Handles "Highest-Finishing Car Only" by picking only the highest result per race.
@@ -12,10 +12,10 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per constructor per Race
 
 SOURCE TABLES:
-    - v_constructor_base
+    - silver.v_constructor_base
 */
 
-CREATE OR REPLACE VIEW v_constructor_championship_logic AS
+CREATE OR REPLACE VIEW silver.v_constructor_championship_logic AS
 
 WITH results AS (
 	SELECT
@@ -37,7 +37,7 @@ WITH results AS (
 			ELSE points
 		END team_points
 		
-	FROM v_constructor_base
+	FROM silver.v_constructor_base 
 ),
 
 season_halves AS (

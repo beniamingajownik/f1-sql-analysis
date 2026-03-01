@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_constructor_standings
+VIEW: gold.v_analytics_constructor_standings
 PURPOSE:
     - Provides a final, aggregated summary of constructor performance per season.
     - Serves as the primary source for championship leaderboards and era-based rankings.
@@ -11,10 +11,10 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per Constructor per Season.
 
 SOURCE TABLES:
-    - v_constructor_championship_logic
+    - silver.v_constructor_championship_logic
 */
 
-CREATE OR REPLACE VIEW v_analytics_constructor_standings AS
+CREATE OR REPLACE VIEW gold.v_analytics_constructor_standings AS
 WITH aggregated_season AS (
 	SELECT
 		year,
@@ -28,7 +28,7 @@ WITH aggregated_season AS (
 		regulation_era,
 		-- Summing only the points that counted towards the championship title
 		SUM(CASE WHEN counts_to_championship = 1 THEN team_points ELSE 0 END) total_points_before_correction		
-	FROM v_constructor_championship_logic
+	FROM silver.v_constructor_championship_logic
 	GROUP BY year, constructor_name, constructor_id, constructor_nationality, constructor_continent, engine_manufacturer, regulation_era
 ),
 

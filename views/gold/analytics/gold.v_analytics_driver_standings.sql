@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_driver_standings
+VIEW: gold.v_analytics_driver_standings
 PURPOSE:
     - Provides a final, aggregated summary of driver performance per season.
     - Serves as the primary source for championship leaderboards and era-based rankings.
@@ -12,10 +12,10 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per Driver per Season.
 
 SOURCE TABLES:
-    - v_driver_championship_logic
+    - silver.v_driver_championship_logic
 */
 
-CREATE OR REPLACE VIEW v_analytics_driver_standings AS
+CREATE OR REPLACE VIEW gold.v_analytics_driver_standings AS
 WITH aggregated_season AS (
 	SELECT
 		year,
@@ -28,7 +28,7 @@ WITH aggregated_season AS (
 		regulation_era,
 		-- Summing only the points that counted towards the championship title
 		SUM(CASE WHEN counts_to_championship = 1 THEN points ELSE 0 END) total_points		
-	FROM v_driver_championship_logic
+	FROM silver.v_driver_championship_logic
 	GROUP BY year, driver_name, driver_id, driver_nationality, driver_continent, regulation_era
 )
 SELECT

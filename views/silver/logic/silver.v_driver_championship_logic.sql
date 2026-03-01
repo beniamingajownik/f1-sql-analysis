@@ -1,5 +1,5 @@
 /*
-VIEW: v_driver_championship_logic
+VIEW: silver.v_driver_championship_logic
 PURPOSE:
     - Applies FIA championship rules to the base racing data.
 	- Handles "Shared Drives" by picking only the best result for a driver per race.
@@ -12,16 +12,16 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per Driver per Race (in case of "Shared Drives" - results consists only of best finish_position)
 
 SOURCE TABLES:
-    - v_driver_base
+    - silver_v_driver_base
 */
 
-CREATE OR REPLACE VIEW v_driver_championship_logic AS
+CREATE OR REPLACE VIEW silver.v_driver_championship_logic AS
 
 -- Handling "Shared Drives" (drivers with multiple records in the same race)
 WITH unified_results AS (
 	SELECT DISTINCT ON (year, race_id, driver_id, session_type)
 	    *
-	FROM v_driver_base
+	FROM silver.v_driver_base
 	ORDER BY year, race_id, driver_id, session_type, finish_position ASC, points DESC
 ),
 

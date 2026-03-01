@@ -1,5 +1,5 @@
 /*
-VIEW: driver_base
+VIEW: silver.v_driver_base
 PURPOSE:
     - Primary analytical view at driver x session grain (including Sprint and Main Race).
     - Serves as the foundation for KPI calculations regarding performance, consistency, and session-specific results.
@@ -31,7 +31,7 @@ SOURCE TABLES:
     - country, continent (Geographical metadata)
 */
 
-CREATE OR REPLACE VIEW v_driver_base AS
+CREATE OR REPLACE VIEW silver.v_driver_base AS
 
 -- Count of drivers that started every session
 WITH race_starters AS (
@@ -39,7 +39,7 @@ WITH race_starters AS (
 		race_id, 
 		type,
 		COUNT(DISTINCT driver_id) AS total_starters
-    FROM race_data 
+    FROM public.race_data 
     WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') AND position_text NOT IN ('DNS', 'DNQ', 'DNPQ', 'EX', 'DNP')
     GROUP BY race_id, type
 ),
@@ -50,8 +50,8 @@ unique_races AS (
 		r.date,
 		rd.race_id,
 		rd.type
-	FROM race_data rd
-	JOIN race r
+	FROM public.race_data rd
+	JOIN public.race r
 		ON rd.race_id = r.id
     WHERE type IN ('RACE_RESULT', 'SPRINT_RACE_RESULT') 
 ),
@@ -82,7 +82,7 @@ grid_position AS (
 			ELSE 0
 		END is_pitlane_start_flag
 		
-    FROM race_data 
+    FROM public.race_data 
     WHERE type IN ('STARTING_GRID_POSITION', 'SPRINT_STARTING_GRID_POSITION')
 )
 SELECT
@@ -162,18 +162,18 @@ SELECT
 
 	rd.race_fastest_lap AS is_fastest_lap
 
-FROM race_data rd
-JOIN race r 
+FROM public.race_data rd
+JOIN public.race r 
 	ON rd.race_id = r.id
-JOIN driver d 
+JOIN public.driver d 
 	ON rd.driver_id = d.id
-JOIN constructor cr 
+JOIN public.constructor cr 
 	ON rd.constructor_id = cr.id
-JOIN country cy 
+JOIN public.country cy 
 	ON d.nationality_country_id = cy.id
-JOIN continent ct
+JOIN public.continent ct
 	ON cy.continent_id = ct.id
-JOIN circuit ci
+JOIN public.circuit ci
 	ON r.circuit_id = ci.id
 
 -- Joining session starters by matching race_id and specific session type (Race vs Sprint)

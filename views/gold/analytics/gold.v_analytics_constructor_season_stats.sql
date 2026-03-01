@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_constructor_season_stats
+VIEW: gold.v_analytics_constructor_season_stats
 PURPOSE:
     - Provides a final, aggregated summary of constructor statistic throughout a season.
 	- Serves as the primary source for constructor performance analysis.  
@@ -11,11 +11,11 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per constructor (Constructor x Season)
 
 SOURCE TABLES:
-    - v_constructor_base
-	- v_constructor_championship_logic
+    - silver.v_constructor_base
+		- silver.v_constructor_championship_logic
 */
 
-CREATE OR REPLACE VIEW v_analytics_constructor_season_stats AS
+CREATE OR REPLACE VIEW gold.v_analytics_constructor_season_stats AS
 
 -- Joining constructor base view with constructor championship logic view in order to correctly calculate stats
 WITH driver_rank AS (
@@ -48,8 +48,8 @@ WITH driver_rank AS (
      			COUNT(CASE WHEN cb.finish_position = 2 THEN 1 END) OVER(PARTITION BY cb.race_id, cb.constructor_id, cb.session_type) > 0
 		THEN 1 ELSE 0 END AS is_one_two_finish
 		
-	FROM v_constructor_base cb
-	LEFT JOIN v_constructor_championship_logic cl
+	FROM silver.v_constructor_base cb
+	LEFT JOIN silver.v_constructor_championship_logic cl
 		ON cb.race_id = cl.race_id AND cb.constructor_id = cl.constructor_id 
 		AND cb.session_type = cl.session_type AND cb.driver_id = cl.driver_id
 	ORDER BY year, race_id, driver_id, session_type, finish_position ASC

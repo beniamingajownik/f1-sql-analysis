@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_driver_season_stats
+VIEW: gold.v_analytics_driver_season_stats
 PURPOSE:
     - Provides a final, aggregated summary of driver statistic throughout a season.
 	- Serves as the primary source for driver performance analysis.  
@@ -12,11 +12,11 @@ DATA HIERARCHY & GRAIN:
 		*Note on Grain: If a driver switched teams mid-season then the driver will take up two or more rows.
 
 SOURCE TABLES:
-    - v_driver_base
-	- v_driver_championship_logic
+    - silver.v_driver_base
+		- silver.v_driver_championship_logic
 */
 
-CREATE OR REPLACE VIEW v_analytics_driver_season_stats AS
+CREATE OR REPLACE VIEW gold.v_analytics_driver_season_stats AS
 
 -- Joining driver base view with driver championship logic view in order to correctly calculate stats
 WITH driver_rank AS (
@@ -41,8 +41,8 @@ WITH driver_rank AS (
 
 		dl.points,
 		dl.counts_to_championship	
-	FROM v_driver_base db
-	LEFT JOIN v_driver_championship_logic dl
+	FROM silver.v_driver_base db
+	LEFT JOIN silver.v_driver_championship_logic dl
 		ON db.race_id = dl.race_id AND db.session_type = dl.session_type AND db.driver_id = dl.driver_id
 	ORDER BY year, race_id, driver_id, session_type, finish_position ASC
 ),

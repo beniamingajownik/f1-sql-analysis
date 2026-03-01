@@ -1,5 +1,5 @@
 /*
-VIEW: v_analytics_race_evolution
+VIEW: gold.v_analytics_race_evolution
 PURPOSE:
     - Provides a cumulative performance evolution of drivers and constructors.
     - Tracks how performance metrics (averages, stability) change throughout a season.
@@ -14,10 +14,10 @@ DATA HIERARCHY & GRAIN:
     - Granularity: One row per driver, per session_type, per race event.
 
 SOURCE TABLES:
-    - v_driver_base
+    - silver.v_driver_base
 */
 
-CREATE OR REPLACE VIEW v_analytics_race_evolution AS
+CREATE OR REPLACE VIEW gold.v_analytics_race_evolution AS
 
 WITH unified_results AS (
 	SELECT DISTINCT ON (year, race_id, driver_id, session_type)
@@ -34,7 +34,7 @@ WITH unified_results AS (
 		grid_position,
 		finish_position,
 		grid_position - finish_position AS pos_gain
-	FROM v_driver_base
+	FROM silver.v_driver_base
 	ORDER BY year, race_id, driver_id, session_type, finish_position ASC
 ),
 
