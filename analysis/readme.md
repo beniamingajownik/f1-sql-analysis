@@ -1,33 +1,3 @@
-# LAYER DESCRIPTION
-
-## SILVER LAYER / WAREHOUSE 
-- **`v_driver_base`**
-    - Normalized view providing cleaned driver results, basic biography info, and unified session types across all eras.
-- **`v_driver_championship_logic`**
-    - Implements historical points systems and seasonal ranking logic to calculate cumulative driver standings.
-- **`v_constructor_base`**
-    - Normalized view for constructor results, unifying team data, engine manufacturers, and technical identifiers.
-- **`v_constructor_championship_logic`**
-    - Implements historical points systems and seasonal ranking logic to calculate cumulative constructor standings.
-
-## GOLD LAYER / MARTS
-- **`v_analytics_driver_standings`** 
-    - Final seasonal driver rankings, providing championship positions and year-end point totals.
-- **`v_analytics_constructor_standings`** 
-    - Final seasonal constructor rankings, providing championship positions and year-end point totals.
-- **`v_analytics_driver_career_summary`** 
-    - Full career aggregates (Total wins, podiums, starts, DNF rate). Powers the Achievements dashboard section.
-- **`v_analytics_constructor_career_summary`** 
-    - Comprehensive team career aggregates (Total wins, podiums, starts, DNF rate). Powers the Achievements dashboard section.
-- **`v_analytics_driver_season_stats`** 
-    - Seasonal performance metrics (Avg start position, points per race, consistency). Powers the Performance analysis section.
-- **`v_analytics_constructor_season_stats`** 
-    - Team-level seasonal performance metrics, mirroring the driver stats for constructor-focused analysis.
-- **`v_analytics_race_evolution`** 
-    - Detailed position delta data (Grid vs Finish) enhanced with rolling averages and volatility metrics. Powers the Race Dynamics section.
-
----
-
 # ANALYSIS SECTIONS
 
 ## 1. Driver Performance  
