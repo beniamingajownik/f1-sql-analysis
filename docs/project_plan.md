@@ -1,46 +1,69 @@
-# Project Plan: F1 SQL Analysis
+# Project Plan & Evolution: F1 SQL Analysis diary
 
-## Primary goal
--   Analyze the results of Formula 1 drivers and teams performance using a consolidated race-by-race dataset.
+## 🎯 Executive Summary
+This project has evolved from a basic SQL query exercise into a robust **End-to-End Data Warehouse** solution. The primary objective is to analyze 70+ years of Formula 1 history by transforming raw data into high-value business insights, specifically optimized for Power BI visualization.
 
-    ### Key areas of analysis
-    - driver performance
-    - constructor effectiveness 
-    - race dynamics
-    - performance consistency over time
-
-## Secondary goal
--   Create a robust and scalable data pipeline in SQL, leveraging advanced data preparation techniques to ensure seamless integration and high performance in Power BI. 
+### Primary Research Areas:
+- **Driver Performance & Legacy:** Career-long tracking of efficiency and titles.
+- **Constructor Engineering Effectiveness:** Technical reliability and R&D progress.
+- **Race Dynamics:** Sunday overtaking efficiency vs. Saturday qualifying pace.
+- **Stability & Volatility:** Measuring consistency through statistical variance (Standard Deviation).
 
 ---
 
-## Project Layers
--   **[DONE] Base Layer:** `v_driver_base` - Cleaned facts at driver x session grain.
--   **[DONE] Logic Layer:** `v_driver_championship_logic` - Historical rules and championship eligibility for drivers (dropped results).
--   **[DONE] Logic Layer:** `v_constructor_championship_logic` - Historical rules and championship eligibility for constructors (dropped results).
--   **[TODO] Analytics Layer:** Aggregated standings, driver performance KPIs, and era-based comparisons.
+## 🏗️ Architectural Evolution (The Medallion Journey)
+A key milestone in this project was the transition from a flat folder structure to a **Medallion Architecture**, ensuring scalability and a "Single Source of Truth."
+
+1.  **Bronze (Raw Data):** Sourced from the Open Source F1DB project.
+2.  **Silver (Warehouse):** - Implementation of complex championship logic (dropped results 1950-1990).
+    - Normalization of diverse session types and technical eras.
+3.  **Gold (Analytics & Reporting):**
+    - **Analytics:** Modular views for granular deep-dives.
+    - **Reporting:** Power BI-ready "Master Views" optimized for dashboard performance.
 
 ---
 
-## Completed Milestones
--   **[SETUP] Database Setup**: Successfully imported the F1 historical dataset.
--   **[SETUP] Project Architecture**: Implemented a layered folder structure (Base/Logic/Analytics) to ensure scalability and Clean Code standards.
--   **[BASE] Base Layer (Silver)**: Developed the `v_driver_base` view, which includes:
-        - Categorization by technical **Regulation Eras**.
-        - **DNS (Did Not Start)** and **DNF** flagging for reliability analysis.
-        - **Pit Lane start** logic and grid position normalization.
--   **[LOGIC] Championship Logic & Standing**: Developing the `v_driver_championship_logic` view:
-        - Apply "Dropped Results" logic for 1950-1990 seasons.
-        - Handle "Shared Drives" by selecting the best finish per driver/race.
-        - Standardizes grain for final championship aggregations.
+## 🏁 Completed Milestones & Development Roadmap
 
-## Milestones In Progress
--   **[ANALYTICS] Driver consistency metrics**: Seasonal statistics (Average points, Main Race vs. Sprint Race performance split, grid position vs finish position etc.). *Dependent on Logic Layer completion*
--   **[ANALYTICS] Career Milestones Analysis**: Building views to track driver life-cycles (age at first win, days from debut to first points, etc.). *Dependent on Logic Layer completion*
--   **[VERYFICATION] Data Quality Audit**: Cross-referencing calculated standings with official FIA year-end results to ensure logic accuracy.   
--   **[VISUALIZATION] PowerBI Visualization**
-    
-## Tech Stack
--    PostgreSQL 
--    Power BI  
--    Git (PowerShell)
+### Phase 1: Foundational Engine (Silver Layer) - **[COMPLETED]**
+- **[CLEANING]** Developed `v_driver_base` and `v_constructor_base` to handle DNS/DNF flags, pit-lane starts, and grid normalization.
+- **[LOGIC]** Solved the "Dropped Results" challenge for early F1 eras (1950-1990), ensuring calculated standings match historical FIA records.
+- **[LOGIC]** Standardized "Shared Drives" and driver-fault vs. car-fault DNF categorization.
+
+### Phase 2: Analytical Insight (Gold Layer / Analytics) - **[COMPLETED]**
+- **[PERFORMANCE]** Created views for seasonal and all-time career aggregates (Wins, Podiums, Points Market Share).
+- **[DYNAMICS]** Developed the **Race Evolution** engine, calculating rolling averages and position deltas for every race since 1950.
+- **[RELIABILITY]** Engineered detailed DNF profiles to distinguish between human error and engineering failure.
+
+### Phase 3: Reporting & Optimization (Gold Layer / Reporting) - **[COMPLETED]**
+- **[REFACTOR]** Restructured the entire directory system into a `views/silver/` and `views/gold/` hierarchy to meet professional Data Engineering standards.
+- **[MASTER VIEWS]** Developed three core reporting views (`v_report_driver_master`, `v_report_constructor_master`, `v_report_hall_of_fame`) designed to serve as wide fact tables for Power BI.
+- **[STATISTICS]** Shifted heavy computations (Standard Deviation for Volatility, Mid-Season Development Indices) from DAX to SQL to maximize report responsiveness.
+
+### Phase 4: Data Quality & Visualization - **[IN PROGRESS]**
+- **[AUDIT]** Cross-referencing current Gold-layer outputs with official standings to ensure 100% logic accuracy.
+- **[BI]** Connecting Power BI to the Reporting Layer to build the final portfolio dashboard.
+
+---
+
+## 🛠️ Technical Deep Dive (Key KPIs Developed)
+Throughout the project, we moved beyond simple counting to advanced metrics:
+- **Overtaking Efficiency:** Average position gain per race entry.
+- **Chassis Stability Index:** Qualifying volatility measured by Standard Deviation.
+- **R&D Effectiveness:** Mid-season performance improvement relative to the seasonal mean.
+- **Legacy Dominance:** Normalized Win % and Podium % across different era lengths.
+
+---
+
+## 💻 Tech Stack
+- **Database:** PostgreSQL (Core transformation and analytical engine).
+- **Architecture:** Medallion-style layered views (Silver/Gold).
+- **Environment:** PGAdmin4.
+- **Version Control:** Git (Utilizing `git mv` for non-destructive architectural refactoring).
+- **Visualization:** Power BI (Reporting Layer consumption).
+
+---
+
+### 📈 Current Project Status
+**Current State:** Data Warehouse is fully operational. The backend architecture is "Power BI-Ready," with pre-calculated KPIs ready for visualization.
+**Next Milestone:** Completion of the interactive Power BI Portfolio Dashboard.
