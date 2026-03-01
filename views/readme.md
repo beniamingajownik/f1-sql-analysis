@@ -4,7 +4,7 @@ This directory contains the core logic of the F1 Data Warehouse, organized into 
 
 ---
 
-## 🥈 SILVER LAYER / (`base` / `logic`)
+## 🥈 SILVER LAYER / ([`base`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views/silver/base) / [`logic`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views/silver/logic))
 *The Silver Layer focuses on data normalization and the application of historical sports logic.*
 
 - **`v_driver_base`**
@@ -18,7 +18,7 @@ This directory contains the core logic of the F1 Data Warehouse, organized into 
 
 ---
 
-## 🥇 GOLD LAYER / `analytics`
+## 🥇 GOLD LAYER / [`analytics`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views/gold/analytics)
 *The Analytics layer provides modular "Building Blocks" for deep-dive exploration and statistical modeling.*
 
 - **`v_analytics_driver_standings`** 
@@ -38,7 +38,7 @@ This directory contains the core logic of the F1 Data Warehouse, organized into 
 
 ---
 
-## 🏆 GOLD LAYER / `reporting` (Power BI Ready)
+## 🏆 GOLD LAYER / [`reporting`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/views/gold/reporting) (Power BI Ready)
 *The Reporting layer serves as the **Consumption Layer** for the project. These "Master Views" are optimized for Power BI integration, minimizing DAX complexity by centralizing heavy analytical computations within the SQL engine.*
 
 - **`v_report_driver_master`** 
