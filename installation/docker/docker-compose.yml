@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  bg_portfolio:
+    image: postgres:18.3-alpine
+    container_name: portfolio_db
+    environment:
+      - POSTGRES_USER=f1_user
+      - POSTGRES_PASSWORD=f1_pass
+      - POSTGRES_DB=f1_portfolio_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ../../:/repo_data
+      - ../../data/source/f1db-sql-postgresql-single-inserts.sql:/docker-entrypoint-initdb.d/01_source_data.sql
+      - ./setup_layers.sql:/docker-entrypoint-initdb.d/02_setup_layers.sql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: f1_pgadmin_ui
+    user: root
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@bgportfolio.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - ../../:/var/lib/pgadmin/storage/admin_bgportfolio_com
