@@ -100,7 +100,7 @@ The project includes a specialized **Reporting Layer** consisting of "Wide Fact 
     * Automated Deployment via Docker
     * Manual Local Connection via Docker
 
-**`For a detailed installation instructions visit:`** **[Installation instructions](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/installation/readme.md)**
+**`For a detailed installation instructions visit:`** **[Installation instructions](https://github.com/beniamingajownik/f1-sql-analysis/blob/main/installation/readme.md)**
 
 ---
 
