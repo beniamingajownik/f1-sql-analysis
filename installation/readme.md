@@ -52,7 +52,7 @@ This project is fully containerized using Docker to ensure a seamless setup expe
 If you prefer to use a standalone SQL client (e.g., local pgAdmin, DBeaver, or DataGrip), use the following credentials to connect to the Docker container:
 * **Host**: `localhost`
 * **Port**: `5433` (externally mapped port)
-* **Database**: `f1_portfolio_base`
+* **Database**: `f1_portfolio_db`
 * **User/Pass**: `f1_user` / `f1_pass`
 
 ---
