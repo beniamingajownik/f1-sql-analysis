@@ -8,6 +8,8 @@ services:
       - POSTGRES_USER=f1_user
       - POSTGRES_PASSWORD=f1_pass
       - POSTGRES_DB=f1_portfolio_db
+      - LANG=en_US.utf8
+      - LC_ALL=en_US.utf8
     ports:
       - "5433:5432"
     volumes:

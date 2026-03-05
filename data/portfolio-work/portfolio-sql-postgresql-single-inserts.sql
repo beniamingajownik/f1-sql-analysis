@@ -994,7 +994,6 @@ CREATE VIEW gold.v_analytics_race_evolution AS
     round((c_cum_avg_finish - c_seas_avg_finish), 2) AS constructor_finish_season_delta
    FROM cumulative_base;
 
-
 --
 -- TOC entry 280 (class 1259 OID 20942)
 -- Name: v_report_constructor_master; Type: VIEW; Schema: gold; Owner: -
