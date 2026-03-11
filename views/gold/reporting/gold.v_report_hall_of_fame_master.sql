@@ -22,6 +22,7 @@ CREATE OR REPLACE VIEW gold.v_report_hall_of_fame_master AS
 -- Part 1: Driver Career Legacy
 SELECT
     driver_name AS entity_name,
+	driver_id AS entity_id,
     'Driver' AS category,
     race_starts AS starts,
     race_wins AS wins,
@@ -42,6 +43,7 @@ UNION ALL
 -- Part 2: Constructor Career Legacy
 SELECT
     constructor_name AS entity_name,
+	constructor_id AS entity_id,
     'Constructor' AS category,
     race_starts AS starts,
     race_wins AS wins,
