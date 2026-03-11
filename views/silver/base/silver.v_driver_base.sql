@@ -91,6 +91,7 @@ SELECT
 	r.date,
 	ri.round,
 	r.grand_prix_id,
+	ci.id AS circuit_id,
 	ci.name AS circuit_name,
 	
 	-- Normalization of session type 	
