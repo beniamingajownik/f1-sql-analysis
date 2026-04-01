@@ -67,7 +67,7 @@ LIMIT 15;
 -- 4. Race finish position volatility in a season
 -- High stddev suggests inconsistent race pace, frequent incidents, or technical issues.
 SELECT
-year,
+	year,
 	regulation_era,
 	driver_name,
 	ROUND(AVG(driver_cum_stddev_finish), 3) AS finish_pos_volatility,
@@ -105,7 +105,12 @@ SELECT
 	regulation_era,
 	driver_name,
 	ROUND(AVG(driver_grid_season_delta), 3) AS qualy_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
 	AND round > total_season_races / 2.0
 	AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races
@@ -121,7 +126,12 @@ SELECT
 	regulation_era,
 	driver_name,
 	ROUND(AVG(driver_finish_season_delta), 3) AS race_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
 	AND round > total_season_races / 2.0
 	AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races
@@ -136,7 +146,12 @@ SELECT
 	regulation_era,
 	driver_name,
 	ROUND(AVG(driver_finish_season_delta), 3) AS race_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
 	AND round > total_season_races / 2
 	AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races

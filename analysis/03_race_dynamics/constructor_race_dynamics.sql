@@ -106,7 +106,12 @@ SELECT
 	regulation_era,
     constructor_name,
     ROUND(AVG(constructor_grid_season_delta), 3) AS qualy_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
   AND round > total_season_races / 2.0
   AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races
@@ -123,7 +128,12 @@ SELECT
 	regulation_era,
     constructor_name,
     ROUND(AVG(constructor_finish_season_delta), 3) AS race_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
   AND round > total_season_races / 2.0
   AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races
@@ -139,7 +149,12 @@ SELECT
 	regulation_era,
     constructor_name,
     ROUND(AVG(constructor_finish_season_delta), 3) AS race_development_index
-FROM gold.v_analytics_race_evolution
+FROM (
+	SELECT 
+		*,
+		MAX(round) OVER(PARTITION BY year) AS total_season_races
+	FROM gold.v_analytics_race_evolution
+	)
 WHERE session_type = 'RACE'
   AND round > total_season_races / 2.0
   AND circuit_name != 'Indianapolis' -- Excluding Indy 500 races
