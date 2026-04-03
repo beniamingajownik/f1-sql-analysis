@@ -57,18 +57,21 @@ The engine answers complex sporting questions through several specialized analys
 
 ---
 
-## 📊 Reporting Layer (Power BI Ready)
-The project includes a specialized **Reporting Layer** consisting of "Wide Fact Tables." These views are optimized for Power BI (Star Schema) to minimize DAX complexity and maximize performance.
+## 📊 Interactive Business Intelligence (Power BI)
+This project is a complete full-stack analytical solution, featuring a professional Power BI dashboard that transforms complex SQL analysis into an immersive visual experience.
 
-- **`v_report_driver_master`**
-    A comprehensive driver performance matrix. It consolidates seasonal standings, overtaking efficiency (avg_pos_gain), consistency (volatility), and reliability metrics into a single reporting grain (Driver-Year).
-- **`v_report_constructor_master`**
-    A team-centric analytical view focusing on engineering stability and R&D effectiveness (mid_season_dev_index). It allows for cross-era benchmarking of team dominance and operational reliability.
+**A ready-to-use `f1-data-viz.pbix` file is available for download in the [`/powerBI`](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/powerBI) directory.**
 
-**Key Features for BI:**
-- **Pre-calculated Volatility**: Standard Deviation calculated at the database level for instant "Consistency" visualizations.
-- **Normalized Efficiency Rates**: Win/Podium percentages for fair comparison across eras with different race counts.
-- **Era-based Filtering**: Native support for grouping data by Technical Regulation Eras.
+### 🏎️ Dashboard Capabilities:
+* **Intuitive Navigation**: A custom navigation bar allows seamless movement between three specialized modules: **Legends** (Career Hall of Fame), **Drivers** (Seasonal Deep-Dives), and **Teams** (Constructor Performance).
+* **Dynamic Performance Metrics**: Real-time tracking of **Running Totals**, **Cumulative Podiums**, and **Year-over-Year (YoY)** standings using advanced DAX and dynamic relationship modeling.
+* **High-End UX**: Implemented a modern Dark Mode interface featuring custom F1 branding and visual performance indicators (▲/▼) to provide instant analytical feedback.
+
+### 🛠️ Optimized Data Engine:
+The reporting layer utilizes specialized "Wide Fact Tables" (`v_report_driver_master`, `v_report_constructor_master`) optimized for a high-performance Star Schema. These views are engineered to minimize DAX complexity while maximizing dashboard responsiveness through pre-calculated metrics:
+* **Pre-calculated Volatility**: Database-level standard deviation for instant consistency visualizations.
+* **Normalized Efficiency Rates**: Win/Podium percentages for fair benchmarking across different technical regulation eras.
+* **Era-based Filtering**: Native support for comparing historical dominance and operational reliability.
 
 ---
 
