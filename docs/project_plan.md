@@ -47,7 +47,7 @@ A key milestone in this project was the transition to a **Medallion Architecture
 - **[MODELING]** Architected a professional **Star Schema** with a custom `Dim_Year` dimension to enable cross-report time intelligence.
 - **[DOCS]** Established `FRAMEWORK_DOCS.md` to document the BI development lifecycle.
 
-### Phase 5: Visualization & DAX - **[IN PROGRESS]**
+### Phase 5: Visualization & DAX - **[COMPLETED]**
 - **[UI/UX]** Designing a three-tier dashboard (Legends, Athletes, Engineering) with a Dark Mode aesthetic.
 - **[DAX]** Developing advanced measures for dynamic ranking and "Season Momentum" indices.
 
@@ -71,5 +71,6 @@ A key milestone in this project was the transition to a **Medallion Architecture
 ---
 
 ### 📈 Current Project Status
-**Current State**: Backend architecture and Semantic Model are 100% operational. Transitioning to final dashboard visualization.
-**Next Milestone**: Implementation of the "Sunday King Index" and Season Momentum DAX measures.
+**Current State**: Backend architecture and Semantic Model are 100% operational. Power BI dashboard visualization is deployed to Github.
+**Future Implementation Ideas**: 
+    - **Comparision dashboard**: Create a direct comparision between drivers/constructors as a PowerBI dashboard. 
