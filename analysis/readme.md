@@ -11,6 +11,8 @@
 5. Highest average points 
 6. Driver points trend over time *(year-over-year)*
 
+![driver YoY](Screenshots/Driver-YoY-growth.JPG)
+
 ### Performance *all time*
 `Navigate to analysis code` -> **[driver_performance_all_time.sql](https://github.com/beniamingajownik/f1-sql-analysis/tree/main/analysis/01_driver_performance/driver_performance_all_time.sql)**
 1. Percentage of race victories
@@ -31,6 +33,7 @@
 5. Average position gain *(minimum 30 race entries and avg_race_grid BETWEEN 5 AND 15)*
 
 ---
+
 ## 2. Constructor Performance         
 
 ### Performance by *season*
@@ -92,6 +95,8 @@
 8. Race position improvement in an era *(Mid-Season Progress)*
 9. Season race position stability *(Stability of results across a Season)*
 10. Era race position stability *(Stability of results across Regulation Eras)*
+
+![quali-volatility](Screenshots/Race-dynamics-constructor-quali-volatility.JPG)
 
 ---
 
